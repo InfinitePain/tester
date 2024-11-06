@@ -14,7 +14,15 @@ jobs:
           fetch-depth: '0'
           lfs: true
 
+      - name: Install required fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-newcomputermodern
+
       - uses: typst-community/setup-typst@v3
-      - run: typst compile thesis.typ thesis.pdf
-      - run: typst compile proposal.typ proposal.pdf
-      - run: typst compile registration_certificate.typ registration_certificate.pdf
+
+      - name: Compile documents
+        run: |
+          typst compile thesis.typ thesis.pdf
+          typst compile proposal.typ proposal.pdf
+          typst compile registration_certificate.typ registration_certificate.pdf
