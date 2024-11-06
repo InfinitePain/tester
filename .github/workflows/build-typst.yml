@@ -13,12 +13,21 @@ jobs:
         with:
           fetch-depth: '0'
 
+      - name: Install required fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip
+          wget https://mirrors.ctan.org/fonts/newcomputermodern.zip
+          unzip newcomputermodern.zip
+          sudo mkdir -p /usr/local/share/fonts/newcomputermodern
+          sudo cp newcomputermodern/otf/* /usr/local/share/fonts/newcomputermodern/
+          fc-cache -f -v
+          rm -rf newcomputermodern*
+
       - uses: typst-community/setup-typst@v3
 
       - name: Compile documents
         run: |
-          sudo apt-get update
-          sudo apt-get install -y texlive-fonts-extra
           typst compile thesis.typ thesis.pdf
           typst compile proposal.typ proposal.pdf
           typst compile registration_certificate.typ registration_certificate.pdf

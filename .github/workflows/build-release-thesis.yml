@@ -17,11 +17,16 @@ jobs:
         with:
           fetch-depth: '0'
 
-
       - name: Install required fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y texlive-fonts-extra
+          sudo apt-get install -y wget unzip
+          wget https://mirrors.ctan.org/fonts/newcomputermodern.zip
+          unzip newcomputermodern.zip
+          sudo mkdir -p /usr/local/share/fonts/newcomputermodern
+          sudo cp newcomputermodern/otf/* /usr/local/share/fonts/newcomputermodern/
+          fc-cache -f -v
+          rm -rf newcomputermodern*
 
       - name: Create initial tag
         run: |
