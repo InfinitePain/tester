@@ -1,13 +1,10 @@
 name: Build and release thesis
-
 on:
   push:
     branches:
       - main
-
 permissions:
   contents: write
-
 jobs:
   build_release_thesis:
     runs-on: ubuntu-latest
@@ -17,13 +14,32 @@ jobs:
         with:
           fetch-depth: '0'
           lfs: true
-
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Add LFS cache to improve performance and reliability
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+      
+      - name: Restore LFS cache
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+          restore-keys: |
+            ${{ runner.os }}-lfs-
+      
+      - name: Git LFS Pull
+        run: |
+          git lfs install
+          git lfs pull
+        
       - name: Create initial tag
         run: |
           if [ -z "$(git tag -l 'v*')" ]; then
             git tag v0.0.0
           fi
-
+          
       - name: Bump version and push tag
         id: bump
         uses: anothrNick/github-tag-action@1.71.0
@@ -31,12 +47,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           WITH_V: true
           DEFAULT_BUMP: 'patch'
-
-      - uses: typst-community/setup-typst@v3
-      - run: typst compile thesis.typ thesis.pdf
-      - run: typst compile proposal.typ proposal.pdf
-      - run: typst compile registration_certificate.typ registration_certificate.pdf
-
+          
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v3
+        
+      - name: Compile documents
+        run: |
+          typst compile thesis.typ thesis.pdf
+          typst compile proposal.typ proposal.pdf
+          typst compile registration_certificate.typ registration_certificate.pdf
+          
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
