@@ -17,10 +17,11 @@ jobs:
         with:
           fetch-depth: '0'
 
+
       - name: Install required fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y fonts-newcomputermodern
+          sudo apt-get install -y texlive-fonts-extra
 
       - name: Create initial tag
         run: |
